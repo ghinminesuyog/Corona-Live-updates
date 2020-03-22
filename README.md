@@ -4,13 +4,8 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+View the number of confirmed Corona cases in your country by date, alongside the total recoveries and deaths.
 
-A few resources to get you started if this is your first Flutter project:
+Data courtesy: CSSEGISandData/COVID-19.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Transforms the data from CSSEGISandData/COVID-19 into a json file. Available at https://pomber.github.io/covid19/timeseries.json. Updated three times a day using GitHub Actions.

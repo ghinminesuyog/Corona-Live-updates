@@ -95,7 +95,9 @@ class _CasesListState extends State<CasesList> {
     setState(() {
       loadingJson = false;
     });
-    countryList = (valueMap.keys).toList();
+    var alphabSortedCountries = ((valueMap.keys).toList());
+    alphabSortedCountries.sort((a, b) => a.toString().compareTo(b.toString()));
+    countryList = alphabSortedCountries;
     entireJsonResponse = valueMap;
     jsonData = valueMap;
     return valueMap;
