@@ -187,7 +187,12 @@ class _CasesListState extends State<CasesList> {
                       getDataFor(selectedValue);
                     });
                   })
-              : new CircularProgressIndicator(),
+              : new Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    Text('Loading data ...')
+                  ],
+                ),
           showResults == false
               ? new Container(width: 0.0, height: 0.0)
               : Expanded(child: futureBuilder)
