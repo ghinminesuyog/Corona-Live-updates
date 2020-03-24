@@ -1,8 +1,9 @@
 // import 'package:corona/main.dart';
-import 'package:corona/chartPage.dart';
+// import 'package:corona/chartPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class CasesList extends StatefulWidget {
   @override
@@ -14,9 +15,11 @@ class _CasesListState extends State<CasesList> {
   String countryName;
   var countryData;
   List<String> countryList;
+  List<charts.Series<LineChartData, int>> _lineGraphData;
 
   var showResults = false;
   var loadingJson = true;
+  var showChart = false;
 
   Widget _listViewBuilder(BuildContext context, AsyncSnapshot snapshot) {
     List<dynamic> values = snapshot.data;
@@ -78,15 +81,14 @@ class _CasesListState extends State<CasesList> {
   void initState() {
     super.initState();
     fetchJsonResponse();
+    _lineGraphData = List<charts.Series<LineChartData, int>>();
   }
 
   fetchJsonResponse() async {
     Response response =
         await get('https://pomber.github.io/covid19/timeseries.json');
-    // print(response.body);
     var jsonResponse = (response.body);
     Map valueMap = json.decode(jsonResponse);
-    // print(valueMap);
     setState(() {
       loadingJson = false;
     });
@@ -111,7 +113,8 @@ class _CasesListState extends State<CasesList> {
 
         // print(entireJsonResponse[countryName]);
         if (entireJsonResponse[countryName] != null) {
-          countryData = await entireJsonResponse[countryName];
+         
+          countryData = entireJsonResponse[countryName];
           var l = await returnData();
           setState(() {
             showResults = true;
@@ -139,6 +142,7 @@ class _CasesListState extends State<CasesList> {
 
   @override
   Widget build(BuildContext context) {
+    
     var futureBuilder = new FutureBuilder(
         future: returnData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -158,6 +162,90 @@ class _CasesListState extends State<CasesList> {
               return Text('Some error occured');
           }
         });
+
+    Widget drawChart() {
+      List<LineChartData> getConfirmedCases() {
+        List<LineChartData> confirmedlist = [];
+        for (int i = 0; i < countryData.length; i++) {
+          var date = (countryData[i]["date"]);
+          // print(date);
+          var confirmed = countryData[i]["confirmed"];
+
+          var d = new LineChartData(i, confirmed);
+          confirmedlist.add(d);
+        }
+        return confirmedlist;
+      }
+
+      List<LineChartData> getRecoveredCases() {
+        List<LineChartData> recoveredlist = [];
+        for (int i = 0; i < countryData.length; i++) {
+          var date = (countryData[i]["date"]);
+          // print(date);
+          var recovered = countryData[i]["recovered"];
+
+          var d = new LineChartData(i, recovered);
+          recoveredlist.add(d);
+        }
+        return recoveredlist;
+      }
+
+      List<LineChartData> getDeathCases() {
+        List<LineChartData> deathslist = [];
+        for (int i = 0; i < countryData.length; i++) {
+          var date = (countryData[i]["date"]);
+          // print(date);
+          var deaths = countryData[i]["deaths"];
+
+          var d = new LineChartData(i, deaths);
+          deathslist.add(d);
+        }
+
+        return deathslist;
+      }
+
+      var confirmeddata = getConfirmedCases();
+
+      var recovereddata = getRecoveredCases();
+
+      var deathdata = getDeathCases();
+
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blue),
+          id: 'Confirmed',
+          data: confirmeddata,
+          domainFn: (LineChartData sales, _) => sales.yearval,
+          measureFn: (LineChartData sales, _) => sales.count,
+        ),
+      );
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.green),
+          id: 'Recovered',
+          data: recovereddata,
+          domainFn: (LineChartData sales, _) => sales.yearval,
+          measureFn: (LineChartData sales, _) => sales.count,
+        ),
+      );
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.red),
+          id: 'Deaths',
+          data: deathdata,
+          domainFn: (LineChartData sales, _) => sales.yearval,
+          measureFn: (LineChartData sales, _) => sales.count,
+        ),
+      );
+
+      return charts.LineChart(
+        _lineGraphData,
+        animate: true,
+        // barGroupingType: charts.BarGroupingType.grouped,
+        //behaviors: [new charts.SeriesLegend()],
+        animationDuration: Duration(seconds: 2),
+      );
+    }
 
     return Center(
       child: Column(
@@ -185,16 +273,12 @@ class _CasesListState extends State<CasesList> {
                         }),
                     (countryName == null)
                         ? Container()
-                        : RaisedButton(
-                            child: new Icon(Icons.insert_chart),
+                        : IconButton(
+                            icon: new Icon(Icons.insert_chart),
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChartsPage(datum: countryData,countryName: countryName),
-                                ),
-                              );
+                              setState(() {
+                                showChart = !showChart;
+                              });
                             },
                           )
                   ],
@@ -207,9 +291,15 @@ class _CasesListState extends State<CasesList> {
                 ),
           showResults == false
               ? new Container(width: 0.0, height: 0.0)
-              : Expanded(child: futureBuilder)
+              : (Expanded(child: showChart ? drawChart() : futureBuilder))
         ],
       ),
     );
   }
+}
+
+class LineChartData {
+  int yearval;
+  int count;
+  LineChartData(this.yearval, this.count);
 }

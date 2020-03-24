@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'casesList.dart';
-import 'chartPage.dart';
-// import 'package:http/http.dart';
-// import 'dart:convert';
 
 void main() => runApp(MyApp());
 
