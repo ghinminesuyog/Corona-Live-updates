@@ -1,4 +1,5 @@
 // import 'package:corona/main.dart';
+import 'package:corona/chartPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -21,7 +22,6 @@ class _CasesListState extends State<CasesList> {
     List<dynamic> values = snapshot.data;
 
     return ListView.builder(
-       
         shrinkWrap: true,
         itemCount: values.length,
         itemBuilder: (BuildContext context, int index) {
@@ -159,39 +159,57 @@ class _CasesListState extends State<CasesList> {
           }
         });
 
-    return 
-    Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 70.00,
-            ),
-            loadingJson == false
-                ? new DropdownButton<String>(
-                    hint: Text('Select a country'),
-                    value: countryName,
-                    items: countryList.map((String value) {
-                      return new DropdownMenuItem<String>(
-                          value: value, child: new Text(value));
-                    }).toList(),
-                    onChanged: (selectedValue) {
-                      setState(() {
-                        getDataFor(selectedValue);
-                      });
-                    })
-                : new Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      Text('Loading data ...')
-                    ],
-                  ),
-            showResults == false
-                ? new Container(width: 0.0, height: 0.0)
-                : Expanded(child: futureBuilder)
-          ],
-        ),
-      );
-    
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(
+            height: 70.00,
+          ),
+          loadingJson == false
+              ? Row(
+                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    new DropdownButton<String>(
+                        hint: Text('Select a country'),
+                        value: countryName,
+                        items: countryList.map((String value) {
+                          return new DropdownMenuItem<String>(
+                              value: value, child: new Text(value));
+                        }).toList(),
+                        onChanged: (selectedValue) {
+                          setState(() {
+                            getDataFor(selectedValue);
+                          });
+                        }),
+                    (countryName == null)
+                        ? Container()
+                        : RaisedButton(
+                            child: new Icon(Icons.insert_chart),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ChartsPage(datum: countryData,countryName: countryName),
+                                ),
+                              );
+                            },
+                          )
+                  ],
+                )
+              : new Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    Text('Loading data ...')
+                  ],
+                ),
+          showResults == false
+              ? new Container(width: 0.0, height: 0.0)
+              : Expanded(child: futureBuilder)
+        ],
+      ),
+    );
   }
 }
