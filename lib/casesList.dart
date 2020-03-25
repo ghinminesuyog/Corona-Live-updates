@@ -15,7 +15,7 @@ class _CasesListState extends State<CasesList> {
   String countryName;
   var countryData;
   List<String> countryList;
-  List<charts.Series<LineChartData, int>> _lineGraphData;
+  List<charts.Series<DateTimeChart, DateTime>> _lineGraphData;
 
   var showResults = false;
   var loadingJson = true;
@@ -81,7 +81,7 @@ class _CasesListState extends State<CasesList> {
   void initState() {
     super.initState();
     fetchJsonResponse();
-    _lineGraphData = List<charts.Series<LineChartData, int>>();
+    _lineGraphData = List<charts.Series<DateTimeChart, DateTime>>();
   }
 
   fetchJsonResponse() async {
@@ -109,11 +109,11 @@ class _CasesListState extends State<CasesList> {
       if (country.length > 0) {
         // var noSpacesCountryName = country.replaceAll(' ', '');
         // print(noSpacesCountryName);
-        countryName = country;
+
+          countryName = country;
 
         // print(entireJsonResponse[countryName]);
         if (entireJsonResponse[countryName] != null) {
-         
           countryData = entireJsonResponse[countryName];
           var l = await returnData();
           setState(() {
@@ -142,7 +142,6 @@ class _CasesListState extends State<CasesList> {
 
   @override
   Widget build(BuildContext context) {
-    
     var futureBuilder = new FutureBuilder(
         future: returnData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -164,86 +163,121 @@ class _CasesListState extends State<CasesList> {
         });
 
     Widget drawChart() {
-      List<LineChartData> getConfirmedCases() {
-        List<LineChartData> confirmedlist = [];
+      List<DateTimeChart> getConfirmedCases() {
+        List<DateTimeChart> confirmedlist = [];
         for (int i = 0; i < countryData.length; i++) {
-          var date = (countryData[i]["date"]);
+          var date = (countryData[i]["date"]).toString();
+
+          var dateComponents = date.split("-");
+          var day = int.parse(dateComponents[2]);
+          var month = int.parse(dateComponents[1]);
+          var year = int.parse(dateComponents[0]);
+
+          DateTime constrDate = new DateTime(year, month, day);
           // print(date);
+          
           var confirmed = countryData[i]["confirmed"];
 
-          var d = new LineChartData(i, confirmed);
+          var d = new DateTimeChart(constrDate, confirmed);
           confirmedlist.add(d);
         }
         return confirmedlist;
       }
 
-      List<LineChartData> getRecoveredCases() {
-        List<LineChartData> recoveredlist = [];
+      List<DateTimeChart> getRecoveredCases() {
+        List<DateTimeChart> recoveredlist = [];
         for (int i = 0; i < countryData.length; i++) {
-          var date = (countryData[i]["date"]);
-          // print(date);
           var recovered = countryData[i]["recovered"];
 
-          var d = new LineChartData(i, recovered);
+          var date = (countryData[i]["date"]);
+          // print(date);
+          var dateComponents = date.split("-");
+          var day = int.parse(dateComponents[2]);
+          var month = int.parse(dateComponents[1]);
+          var year = int.parse(dateComponents[0]);
+
+          DateTime constrDate = new DateTime(year, month, day);
+
+          var d = new DateTimeChart(constrDate, recovered);
           recoveredlist.add(d);
         }
         return recoveredlist;
       }
 
-      List<LineChartData> getDeathCases() {
-        List<LineChartData> deathslist = [];
+      List<DateTimeChart> getDeathCases() {
+        List<DateTimeChart> deathslist = [];
         for (int i = 0; i < countryData.length; i++) {
-          var date = (countryData[i]["date"]);
           // print(date);
           var deaths = countryData[i]["deaths"];
+          var date = (countryData[i]["date"]);
+          // print(date);
+          var dateComponents = date.split("-");
+          var day = int.parse(dateComponents[2]);
+          var month = int.parse(dateComponents[1]);
+          var year = int.parse(dateComponents[0]);
+          DateTime constrDate = new DateTime(year, month, day);
 
-          var d = new LineChartData(i, deaths);
+          var d = new DateTimeChart(constrDate, deaths);
           deathslist.add(d);
         }
 
         return deathslist;
       }
 
-      var confirmeddata = getConfirmedCases();
+      List<DateTimeChart> confirmeddata, recovereddata, deathdata;
 
-      var recovereddata = getRecoveredCases();
+        confirmeddata = getConfirmedCases();
 
-      var deathdata = getDeathCases();
+        recovereddata = getRecoveredCases();
 
-      _lineGraphData.add(
-        charts.Series(
-          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blue),
-          id: 'Confirmed',
-          data: confirmeddata,
-          domainFn: (LineChartData sales, _) => sales.yearval,
-          measureFn: (LineChartData sales, _) => sales.count,
-        ),
-      );
-      _lineGraphData.add(
-        charts.Series(
-          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.green),
-          id: 'Recovered',
-          data: recovereddata,
-          domainFn: (LineChartData sales, _) => sales.yearval,
-          measureFn: (LineChartData sales, _) => sales.count,
-        ),
-      );
-      _lineGraphData.add(
-        charts.Series(
-          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.red),
-          id: 'Deaths',
-          data: deathdata,
-          domainFn: (LineChartData sales, _) => sales.yearval,
-          measureFn: (LineChartData sales, _) => sales.count,
-        ),
-      );
+        deathdata = getDeathCases();
 
-      return charts.LineChart(
+        _lineGraphData.add(
+          charts.Series(
+            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blue),
+            id: 'Confirmed',
+            data: confirmeddata,
+            domainFn: (DateTimeChart sales, _) => sales.date,
+            measureFn: (DateTimeChart sales, _) => sales.count,
+          ),
+        );
+        _lineGraphData.add(
+          charts.Series(
+            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.green),
+            id: 'Recovered',
+            data: recovereddata,
+            domainFn: (DateTimeChart sales, _) => sales.date,
+            measureFn: (DateTimeChart sales, _) => sales.count,
+          ),
+        );
+        _lineGraphData.add(
+          charts.Series(
+            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.red),
+            id: 'Deaths',
+            data: deathdata,
+            domainFn: (DateTimeChart sales, _) => sales.date,
+            measureFn: (DateTimeChart sales, _) => sales.count,
+          ),
+        );
+      return new charts.TimeSeriesChart(
         _lineGraphData,
         animate: true,
         // barGroupingType: charts.BarGroupingType.grouped,
         //behaviors: [new charts.SeriesLegend()],
         animationDuration: Duration(seconds: 2),
+        behaviors: [
+          // Add the sliding viewport behavior to have the viewport center on the
+          // domain that is currently selected.
+          new charts.SlidingViewport(),
+          // A pan and zoom behavior helps demonstrate the sliding viewport
+          // behavior by allowing the data visible in the viewport to be adjusted
+          // dynamically.
+          new charts.PanAndZoomBehavior(),
+        ],
+        // Set an initial viewport to demonstrate the sliding viewport behavior on
+        // initial chart load.
+        // domainAxis: new charts.OrdinalAxisSpec(
+        //     viewport: new charts.OrdinalViewport('2018', 4)),
       );
     }
 
@@ -267,9 +301,9 @@ class _CasesListState extends State<CasesList> {
                               value: value, child: new Text(value));
                         }).toList(),
                         onChanged: (selectedValue) {
-                          setState(() {
+
                             getDataFor(selectedValue);
-                          });
+
                         }),
                     (countryName == null)
                         ? Container()
@@ -291,15 +325,21 @@ class _CasesListState extends State<CasesList> {
                 ),
           showResults == false
               ? new Container(width: 0.0, height: 0.0)
-              : (Expanded(child: showChart ? drawChart() : futureBuilder))
+              : (Expanded(child: showChart ?  drawChart() : futureBuilder))
         ],
       ),
     );
   }
 }
 
-class LineChartData {
-  int yearval;
+// class LineChartData {
+//   int yearval;
+//   int count;
+//   LineChartData(this.yearval, this.count);
+// }
+
+class DateTimeChart {
+  DateTime date;
   int count;
-  LineChartData(this.yearval, this.count);
+  DateTimeChart(this.date, this.count);
 }
