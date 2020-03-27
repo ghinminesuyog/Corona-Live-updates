@@ -5,28 +5,27 @@ import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-void main() => runApp(MyApp());
+void main() => runApp(CasesList());
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
+// class MyApp extends StatefulWidget {
+//   @override
+//   _MyAppState createState() => _MyAppState();
+// }
 
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: CasesList(),
-      ),
-    );
-  }
-}
+// class _MyAppState extends State<MyApp> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: Scaffold(
+//         body: CasesList(),
+//       ),
+//     );
+//   }
+// }
 
 // import 'package:corona/main.dart';
 // import 'package:corona/chartPage.dart';
-
 
 class CasesList extends StatefulWidget {
   @override
@@ -133,7 +132,7 @@ class _CasesListState extends State<CasesList> {
         // var noSpacesCountryName = country.replaceAll(' ', '');
         // print(noSpacesCountryName);
 
-          countryName = country;
+        countryName = country;
 
         // print(entireJsonResponse[countryName]);
         if (entireJsonResponse[countryName] != null) {
@@ -198,7 +197,7 @@ class _CasesListState extends State<CasesList> {
 
           DateTime constrDate = new DateTime(year, month, day);
           // print(date);
-          
+
           var confirmed = countryData[i]["confirmed"];
 
           var d = new DateTimeChart(constrDate, confirmed);
@@ -249,39 +248,39 @@ class _CasesListState extends State<CasesList> {
 
       List<DateTimeChart> confirmeddata, recovereddata, deathdata;
 
-        confirmeddata = getConfirmedCases();
+      confirmeddata = getConfirmedCases();
 
-        recovereddata = getRecoveredCases();
+      recovereddata = getRecoveredCases();
 
-        deathdata = getDeathCases();
+      deathdata = getDeathCases();
 
-        _lineGraphData.add(
-          charts.Series(
-            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blue),
-            id: 'Confirmed',
-            data: confirmeddata,
-            domainFn: (DateTimeChart sales, _) => sales.date,
-            measureFn: (DateTimeChart sales, _) => sales.count,
-          ),
-        );
-        _lineGraphData.add(
-          charts.Series(
-            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.green),
-            id: 'Recovered',
-            data: recovereddata,
-            domainFn: (DateTimeChart sales, _) => sales.date,
-            measureFn: (DateTimeChart sales, _) => sales.count,
-          ),
-        );
-        _lineGraphData.add(
-          charts.Series(
-            colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.red),
-            id: 'Deaths',
-            data: deathdata,
-            domainFn: (DateTimeChart sales, _) => sales.date,
-            measureFn: (DateTimeChart sales, _) => sales.count,
-          ),
-        );
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blue),
+          id: 'Confirmed',
+          data: confirmeddata,
+          domainFn: (DateTimeChart sales, _) => sales.date,
+          measureFn: (DateTimeChart sales, _) => sales.count,
+        ),
+      );
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.green),
+          id: 'Recovered',
+          data: recovereddata,
+          domainFn: (DateTimeChart sales, _) => sales.date,
+          measureFn: (DateTimeChart sales, _) => sales.count,
+        ),
+      );
+      _lineGraphData.add(
+        charts.Series(
+          colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.red),
+          id: 'Deaths',
+          data: deathdata,
+          domainFn: (DateTimeChart sales, _) => sales.date,
+          measureFn: (DateTimeChart sales, _) => sales.count,
+        ),
+      );
       return new charts.TimeSeriesChart(
         _lineGraphData,
         animate: true,
@@ -304,54 +303,55 @@ class _CasesListState extends State<CasesList> {
       );
     }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(
-            height: 70.00,
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+            body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                height: 70.00,
+              ),
+              loadingJson == false
+                  ? Row(
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        new DropdownButton<String>(
+                            hint: Text('Select a country'),
+                            value: countryName,
+                            items: countryList.map((String value) {
+                              return new DropdownMenuItem<String>(
+                                  value: value, child: new Text(value));
+                            }).toList(),
+                            onChanged: (selectedValue) {
+                              getDataFor(selectedValue);
+                            }),
+                        (countryName == null)
+                            ? Container()
+                            : IconButton(
+                                icon: new Icon(Icons.insert_chart),
+                                onPressed: () {
+                                  setState(() {
+                                    showChart = !showChart;
+                                  });
+                                },
+                              )
+                      ],
+                    )
+                  : new Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        Text('Loading data ...')
+                      ],
+                    ),
+              showResults == false
+                  ? new Container(width: 0.0, height: 0.0)
+                  : (Expanded(child: showChart ? drawChart() : futureBuilder))
+            ],
           ),
-          loadingJson == false
-              ? Row(
-                  // crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    new DropdownButton<String>(
-                        hint: Text('Select a country'),
-                        value: countryName,
-                        items: countryList.map((String value) {
-                          return new DropdownMenuItem<String>(
-                              value: value, child: new Text(value));
-                        }).toList(),
-                        onChanged: (selectedValue) {
-
-                            getDataFor(selectedValue);
-
-                        }),
-                    (countryName == null)
-                        ? Container()
-                        : IconButton(
-                            icon: new Icon(Icons.insert_chart),
-                            onPressed: () {
-                              setState(() {
-                                showChart = !showChart;
-                              });
-                            },
-                          )
-                  ],
-                )
-              : new Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    Text('Loading data ...')
-                  ],
-                ),
-          showResults == false
-              ? new Container(width: 0.0, height: 0.0)
-              : (Expanded(child: showChart ?  drawChart() : futureBuilder))
-        ],
-      ),
-    );
+        )));
   }
 }
 
