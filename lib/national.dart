@@ -356,11 +356,13 @@ class _CountryDataState extends State<CountryData> {
                 ),
                 //     ?
                 new Padding(padding: EdgeInsets.all(10), child: dropdownMenu),
-                Text(
-                  'Today:',
-                  style: TextStyle(fontSize: 26),
-                  textAlign: TextAlign.center,
-                ),
+                (displayChart)
+                    ? Text(
+                        'Today:',
+                        style: TextStyle(fontSize: 26),
+                        textAlign: TextAlign.center,
+                      )
+                    : Container(),
                 SizedBox(
                   height: 20,
                 ),
@@ -381,6 +383,16 @@ class _CountryDataState extends State<CountryData> {
                     : Container(),
                 SizedBox(
                   height: 50,
+                ),
+                (displayChart)
+                    ? Text(
+                        'Time line:',
+                        style: TextStyle(fontSize: 26),
+                        textAlign: TextAlign.center,
+                      )
+                    : Container(),
+                SizedBox(
+                  height: 20,
                 ),
                 (displayChart)
                     ? Container(

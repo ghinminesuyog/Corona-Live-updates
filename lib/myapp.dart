@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
             BottomNavigationBarItem(
                 icon: new Icon(Icons.map), title: Text('Global')),
             BottomNavigationBarItem(
-                icon: new Icon(Icons.location_on), title: Text('National')),
+                icon: new Image.asset('assets/images/world.png'), title: Text('National')),
           ],
           onTap: changeIndex,
         ),

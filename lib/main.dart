@@ -24,7 +24,10 @@ class _FetchingDataState extends State<FetchingData> {
 
     loadingStatus =
         Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      CircularProgressIndicator(),
+      // CircularProgressIndicator(),
+      Container(height:300,
+      child: Image.asset('assets/images/earthflags.gif'),
+      ),
       SizedBox(
         height: 10,
       ),

@@ -213,6 +213,7 @@ class _GlobalState extends State<GlobalWidget> {
           SizedBox(
             height: 70.00,
           ),
+          
           Text(
             'Today:',
             style: TextStyle(fontSize: 26),
