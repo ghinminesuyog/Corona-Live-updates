@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:corona/national.dart';
 import 'package:corona/global.dart';
 import 'classes.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyApp extends StatefulWidget {
   final AvailableData jsonData;
@@ -18,7 +19,7 @@ class _MyAppState extends State<MyApp> {
   initState() {
     super.initState();
     _children = [
-      GlobalWidget(globalData: widget.jsonData.global),
+      GlobalWidget(globalPieData: widget.jsonData.globalPieData, globalGraphData: widget.jsonData.globalLineData,),
       CountryData(entireJsonResponse: widget.jsonData.national),
     ];
   }
@@ -39,9 +40,11 @@ class _MyAppState extends State<MyApp> {
           currentIndex: currentIndex,
           items: [
             BottomNavigationBarItem(
-                icon: new Icon(Icons.map), title: Text('Global')),
+              icon: Icon(FontAwesomeIcons.globe),
+              title: Text('Global'),
+            ),
             BottomNavigationBarItem(
-                icon: new Image.asset('assets/images/world.png'), title: Text('National')),
+                icon: Icon(FontAwesomeIcons.mapPin), title: Text('National')),
           ],
           onTap: changeIndex,
         ),

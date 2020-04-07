@@ -16,7 +16,8 @@ class _FetchingDataState extends State<FetchingData> {
   Widget loadingStatus;
   AvailableData data;
   Map national;
-  Global global; 
+  GlobalPieData globalPieData;
+  Map globalLineData;
 
   @override
   void initState() {
@@ -25,8 +26,9 @@ class _FetchingDataState extends State<FetchingData> {
     loadingStatus =
         Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       // CircularProgressIndicator(),
-      Container(height:300,
-      child: Image.asset('assets/images/earthflags.gif'),
+      Container(
+        height: 300,
+        child: Image.asset('assets/images/earthflags.gif'),
       ),
       SizedBox(
         height: 10,
@@ -34,13 +36,11 @@ class _FetchingDataState extends State<FetchingData> {
       Text('Loading...')
     ]);
 
-    fetchCountryWiseJson().then(
-        (res){
-          fetchGlobalData();
-          }
-         
-    );
-    
+    fetchCountryWiseJson().then((res) {
+      fetchGlobalPieData().then((res){
+        fetchGlobalLineData();
+      });
+    });
   }
 
   Future fetchCountryWiseJson() async {
@@ -52,17 +52,15 @@ class _FetchingDataState extends State<FetchingData> {
     setState(() {
       national = jsonObject;
     });
-
-
   }
 
-  fetchGlobalData() async {
+  Future fetchGlobalPieData() async {
     DateTime today = new DateTime.now();
     int year = today.year;
     int month = today.month;
     int dayToday = today.day;
 
-    DateTime yesterday = new DateTime(year, month,dayToday,-24);
+    DateTime yesterday = new DateTime(year, month, dayToday, -24);
     // print('Yesterday: $yesterday');
     int day = yesterday.day;
     // Check for yesterday's data instead of today's; today might not be updated:
@@ -73,7 +71,7 @@ class _FetchingDataState extends State<FetchingData> {
     http.Response response = await http.get(url);
     var jsonResponseString = response.body;
     Map jsonObject = json.decode(jsonResponseString);
-    print(jsonObject);
+    // print(jsonObject);
 
     Map result = jsonObject['result'];
 
@@ -81,12 +79,23 @@ class _FetchingDataState extends State<FetchingData> {
     int deaths = result['deaths'];
     int recovered = result['recovered'];
 
-    Global global = Global(confirmed,recovered,deaths);
+    GlobalPieData gblPieData = GlobalPieData(confirmed, recovered, deaths);
+    setState(() {
+      globalPieData = gblPieData;
+    });
+  }
+
+  fetchGlobalLineData() async{
+    String url = 'https://covidapi.info/api/v1/global/count';
+    http.Response response = await http.get(url);
+    var jsonRespString = response.body;
+    Map jsonObject = json.decode(jsonRespString);
+    print(jsonObject);
+
 
     setState(() {
-      global = global;
 
-      data = AvailableData(national, global);
+      data = AvailableData(national, globalPieData, globalLineData);
 
       loadingStatus = MyApp(jsonData: data);
     });

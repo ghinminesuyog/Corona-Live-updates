@@ -1,12 +1,14 @@
 
-class Global{
+class GlobalPieData{
   int confirmed, deaths, recovered;
-  Global(this.confirmed,this.recovered,this.deaths);
+  GlobalPieData(this.confirmed,this.recovered,this.deaths);
 }
 
 class AvailableData{
 
   Map national;
-  Global global;
-  AvailableData(this.national,this.global);
+  GlobalPieData globalPieData;
+  Map globalLineData;
+
+  AvailableData(this.national,this.globalPieData,this.globalLineData);
 }

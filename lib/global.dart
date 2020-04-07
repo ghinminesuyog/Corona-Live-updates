@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class GlobalWidget extends StatefulWidget {
-  final Global globalData;
-  GlobalWidget({Key key, @required this.globalData}) : super(key: key);
+  final GlobalPieData globalPieData;
+  final  globalGraphData;
+  GlobalWidget({Key key, @required this.globalPieData , @required this.globalGraphData}) : super(key: key);
 
   @override
   _GlobalState createState() => _GlobalState();
@@ -13,7 +14,7 @@ class GlobalWidget extends StatefulWidget {
 
 class _GlobalState extends State<GlobalWidget> {
   int confirmed, recovered, death;
-  Global myglobalData;
+  GlobalPieData myglobalData;
   Widget confirmedTile, recoveredTile, deathTile;
   bool showPieChart = false;
   List<charts.Series<Cases, String>> _casesData;
@@ -21,8 +22,8 @@ class _GlobalState extends State<GlobalWidget> {
   @override
   initState() {
     super.initState();
-    myglobalData = Global(widget.globalData.confirmed,
-        widget.globalData.recovered, widget.globalData.deaths);
+    myglobalData = GlobalPieData(widget.globalPieData.confirmed,
+        widget.globalPieData.recovered, widget.globalPieData.deaths);
     _casesData = List<charts.Series<Cases, String>>();
   }
 
@@ -213,7 +214,7 @@ class _GlobalState extends State<GlobalWidget> {
           SizedBox(
             height: 70.00,
           ),
-          
+
           Text(
             'Today:',
             style: TextStyle(fontSize: 26),
