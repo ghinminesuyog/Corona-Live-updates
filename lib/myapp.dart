@@ -11,22 +11,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int currentIndex = 01;
+  int currentIndex = 0;
   List<Widget> _children;
 
-  @override initState(){
+  @override
+  initState() {
     super.initState();
-      _children = [
-        CountryData(entireJsonResponse: widget.jsonData.national), 
-        GlobalWidget(globalData: widget.jsonData.global,),
-        ];
-
+    _children = [
+      GlobalWidget(globalData: widget.jsonData.global),
+      CountryData(entireJsonResponse: widget.jsonData.national),
+    ];
   }
 
   changeIndex(int index) {
     setState(() {
       currentIndex = index;
-      
     });
   }
 
@@ -40,9 +39,9 @@ class _MyAppState extends State<MyApp> {
           currentIndex: currentIndex,
           items: [
             BottomNavigationBarItem(
-                icon: new Icon(Icons.location_on), title: Text('National')),
+                icon: new Icon(Icons.map), title: Text('Global')),
             BottomNavigationBarItem(
-                icon: new Icon(Icons.map), title: Text('Global'))
+                icon: new Icon(Icons.location_on), title: Text('National')),
           ],
           onTap: changeIndex,
         ),

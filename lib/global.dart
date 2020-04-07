@@ -42,16 +42,19 @@ class _GlobalState extends State<GlobalWidget> {
 
   generateChart() {
     var pieData = [
-      new Cases('Confirmed', confirmed),
-      new Cases('Recovered', recovered),
-      new Cases('Deaths', death)
+      new Cases(
+          'Confirmed', confirmed, charts.ColorUtil.fromDartColor(Colors.blue)),
+      new Cases(
+          'Recovered', recovered, charts.ColorUtil.fromDartColor(Colors.green)),
+      new Cases('Deaths', death, charts.ColorUtil.fromDartColor(Colors.red))
     ];
 
     _casesData.add(
       charts.Series(
         domainFn: (Cases data, _) => data.type,
         measureFn: (Cases data, _) => data.number,
-        id: 'Time spent',
+        colorFn: (Cases data, _) => data.colour,
+        id: 'Cases',
         data: pieData,
         labelAccessorFn: (Cases row, _) => '${row.type}',
       ),
@@ -94,20 +97,13 @@ class _GlobalState extends State<GlobalWidget> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          '$confirmed',
-                          style:
-                              TextStyle(fontSize: 25.00, color: Colors.white),
-                        ),
+                      Text(
+                        '$confirmed',
+                        style: TextStyle(fontSize: 20.00, color: Colors.white),
                       ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          'Confirmed',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                      Text(
+                        'Confirmed',
+                        style: TextStyle(color: Colors.white),
                       )
                     ],
                   ),
@@ -146,20 +142,14 @@ class _GlobalState extends State<GlobalWidget> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        '$recovered',
-                        style: TextStyle(fontSize: 25.00, color: Colors.white),
-                      ),
+                    Text(
+                      '$recovered',
+                      style: TextStyle(fontSize: 20.00, color: Colors.white),
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text(
-                        'Recovered',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
+                    Text(
+                      'Recovered',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -198,21 +188,14 @@ class _GlobalState extends State<GlobalWidget> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          '$death',
-                          style:
-                              TextStyle(fontSize: 25.00, color: Colors.white),
-                        ),
+                      Text(
+                        '$death',
+                        style: TextStyle(fontSize: 20.00, color: Colors.white),
                       ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          'Deaths',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
+                      Text(
+                        'Deaths',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ));
@@ -227,9 +210,26 @@ class _GlobalState extends State<GlobalWidget> {
       body: ListView(
         scrollDirection: Axis.vertical,
         children: <Widget>[
-           showPieChart ?  Container(child: generateChart()) : confirmedTile,
-          showPieChart ? Container() : recoveredTile,
-          showPieChart ? Container() : deathTile,
+          SizedBox(
+            height: 70.00,
+          ),
+          Text(
+            'Today:',
+            style: TextStyle(fontSize: 26),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(flex: 3, child: confirmedTile),
+              Expanded(flex: 3, child: recoveredTile),
+              Expanded(flex: 3, child: deathTile),
+            ],
+          ),
+          Container(height: 400, child: generateChart())
         ],
       ),
     );
@@ -237,7 +237,8 @@ class _GlobalState extends State<GlobalWidget> {
 }
 
 class Cases {
+  charts.Color colour;
   final String type;
   final int number;
-  Cases(this.type, this.number);
+  Cases(this.type, this.number, this.colour);
 }
