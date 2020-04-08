@@ -323,7 +323,6 @@ class _CountryDataState extends State<CountryData> {
       );
     }
 
-    ;
     Widget dropdownMenu = new DropdownButton<String>(
       isExpanded: true,
       hint: Text('Select a country'),
@@ -356,16 +355,7 @@ class _CountryDataState extends State<CountryData> {
                 ),
                 //     ?
                 new Padding(padding: EdgeInsets.all(10), child: dropdownMenu),
-                (displayChart)
-                    ? Text(
-                        'Today:',
-                        style: TextStyle(fontSize: 26),
-                        textAlign: TextAlign.center,
-                      )
-                    : Container(),
-                SizedBox(
-                  height: 20,
-                ),
+
                 (displayChart)
                     ? Container(
                         // height: 200,

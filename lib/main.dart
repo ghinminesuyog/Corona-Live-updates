@@ -37,7 +37,7 @@ class _FetchingDataState extends State<FetchingData> {
     ]);
 
     fetchCountryWiseJson().then((res) {
-      fetchGlobalPieData().then((res){
+      fetchGlobalPieData().then((res) {
         fetchGlobalLineData();
       });
     });
@@ -85,15 +85,15 @@ class _FetchingDataState extends State<FetchingData> {
     });
   }
 
-  fetchGlobalLineData() async{
+  fetchGlobalLineData() async {
     String url = 'https://covidapi.info/api/v1/global/count';
     http.Response response = await http.get(url);
     var jsonRespString = response.body;
     Map jsonObject = json.decode(jsonRespString);
-    print(jsonObject);
-
+    // print(jsonObject);
 
     setState(() {
+      globalLineData = jsonObject;
 
       data = AvailableData(national, globalPieData, globalLineData);
 

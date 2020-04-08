@@ -5,8 +5,10 @@ import 'package:charts_flutter/flutter.dart' as charts;
 
 class GlobalWidget extends StatefulWidget {
   final GlobalPieData globalPieData;
-  final  globalGraphData;
-  GlobalWidget({Key key, @required this.globalPieData , @required this.globalGraphData}) : super(key: key);
+  final globalGraphData;
+  GlobalWidget(
+      {Key key, @required this.globalPieData, @required this.globalGraphData})
+      : super(key: key);
 
   @override
   _GlobalState createState() => _GlobalState();
@@ -14,23 +16,27 @@ class GlobalWidget extends StatefulWidget {
 
 class _GlobalState extends State<GlobalWidget> {
   int confirmed, recovered, death;
-  GlobalPieData myglobalData;
+  GlobalPieData myglobalPieData;
   Widget confirmedTile, recoveredTile, deathTile;
   bool showPieChart = false;
   List<charts.Series<Cases, String>> _casesData;
+  List<charts.Series<TimeSeries, DateTime>> _casesDateGraph;
 
   @override
   initState() {
     super.initState();
-    myglobalData = GlobalPieData(widget.globalPieData.confirmed,
+    myglobalPieData = GlobalPieData(widget.globalPieData.confirmed,
         widget.globalPieData.recovered, widget.globalPieData.deaths);
+
     _casesData = List<charts.Series<Cases, String>>();
+    _casesDateGraph = List<charts.Series<TimeSeries, DateTime>>();
   }
 
   Future<String> fetchData() async {
-    confirmed = myglobalData.confirmed;
-    recovered = myglobalData.recovered;
-    death = myglobalData.deaths;
+    recovered = myglobalPieData.recovered;
+    death = myglobalPieData.deaths;
+    confirmed = myglobalPieData.confirmed - recovered - death;
+
     // print(death);
     return death.toString();
   }
@@ -207,21 +213,79 @@ class _GlobalState extends State<GlobalWidget> {
       },
     );
 
+    Widget generateDateTimeChart() {
+      List<TimeSeries> _confirmedList = [];
+      List<TimeSeries> _recoveredList = [];
+      List<TimeSeries> _deathList = [];
+
+      var jsonData = widget.globalGraphData;
+      Map res = jsonData['result'];
+
+      var dates = (res.keys).toList();
+
+      for (int i = 0; i < dates.length; i++) {
+        String date = dates[i];
+
+        var dateParts = date.split('-');
+        int yr = int.parse(dateParts[0]);
+        int mnth = int.parse(dateParts[1]);
+        int day = int.parse(dateParts[2]);
+
+        DateTime constDate = DateTime(yr, mnth, day);
+
+        var dateResult = res[date];
+
+        int confirmed = dateResult['confirmed'];
+        _confirmedList.add(TimeSeries(
+            constDate, confirmed, charts.ColorUtil.fromDartColor(Colors.blue)));
+
+        int recovered = dateResult['recovered'];
+        _recoveredList.add(TimeSeries(constDate, recovered,
+            charts.ColorUtil.fromDartColor(Colors.green)));
+        int deaths = dateResult['deaths'];
+        _deathList.add(TimeSeries(
+            constDate, deaths, charts.ColorUtil.fromDartColor(Colors.red)));
+      }
+
+      _casesDateGraph.add(
+        charts.Series(
+            data: _confirmedList,
+            measureFn: (TimeSeries data, _) => data.count,
+            domainFn: (TimeSeries data, _) => data.date,
+            colorFn: (TimeSeries data, _) => data.colour,
+            id: 'Confirmed'),
+      );
+      _casesDateGraph.add(
+        charts.Series(
+            data: _recoveredList,
+            measureFn: (TimeSeries data, _) => data.count,
+            domainFn: (TimeSeries data, _) => data.date,
+            colorFn: (TimeSeries data, _) => data.colour,
+            id: 'Recovered'),
+      );
+      _casesDateGraph.add(
+        charts.Series(
+            data: _deathList,
+            measureFn: (TimeSeries data, _) => data.count,
+            domainFn: (TimeSeries data, _) => data.date,
+            colorFn: (TimeSeries data, _) => data.colour,
+            id: 'Death'),
+      );
+
+      return charts.TimeSeriesChart(
+        _casesDateGraph,
+        animate: true,
+        animationDuration: new Duration(seconds: 1),
+        behaviors: [new charts.PanAndZoomBehavior(), new charts.SeriesLegend()],
+      );
+    }
+
     return Scaffold(
       body: ListView(
         scrollDirection: Axis.vertical,
         children: <Widget>[
           SizedBox(
             height: 70.00,
-          ),
-
-          Text(
-            'Today:',
-            style: TextStyle(fontSize: 26),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(
-            height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -231,7 +295,16 @@ class _GlobalState extends State<GlobalWidget> {
               Expanded(flex: 3, child: deathTile),
             ],
           ),
-          Container(height: 400, child: generateChart())
+          Container(height: 400, child: generateChart()),
+          SizedBox(
+            height: 70,
+          ),
+          Text(
+            'Time line:',
+            style: TextStyle(fontSize: 26),
+            textAlign: TextAlign.center,
+          ),
+          Container(height: 400, child: generateDateTimeChart())
         ],
       ),
     );
@@ -243,4 +316,11 @@ class Cases {
   final String type;
   final int number;
   Cases(this.type, this.number, this.colour);
+}
+
+class TimeSeries {
+  final DateTime date;
+  final int count;
+  final charts.Color colour;
+  TimeSeries(this.date, this.count, this.colour);
 }
