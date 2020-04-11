@@ -23,18 +23,38 @@ class _FetchingDataState extends State<FetchingData> {
   void initState() {
     super.initState();
 
-    loadingStatus =
-        Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      // CircularProgressIndicator(),
-      Container(
-        height: 300,
-        child: Image.asset('assets/images/earthflags.gif'),
-      ),
-      SizedBox(
-        height: 10,
-      ),
-      Text('Loading...')
-    ]);
+    loadingStatus = Column(
+      // mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 170,
+        ),
+        Container(
+          height: 300,
+          child: Image.asset('assets/images/earthflags.gif'),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text('Loading...'),
+        Expanded(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Text(
+              'By \n Suyog Ghinmine',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                color: Colors.blueAccent,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+      ],
+    );
 
     fetchCountryWiseJson().then((res) {
       fetchGlobalPieData().then((res) {

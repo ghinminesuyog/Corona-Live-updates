@@ -21,6 +21,9 @@ class _GlobalState extends State<GlobalWidget> {
   bool showPieChart = false;
   List<charts.Series<Cases, String>> _casesData;
   List<charts.Series<TimeSeries, DateTime>> _casesDateGraph;
+  List<charts.Series<TimeSeries, DateTime>> _confirmedDateGraph;
+  List<charts.Series<TimeSeries, DateTime>> _recoveredDateGraph;
+  List<charts.Series<TimeSeries, DateTime>> _deathDateGraph;
 
   @override
   initState() {
@@ -30,6 +33,9 @@ class _GlobalState extends State<GlobalWidget> {
 
     _casesData = List<charts.Series<Cases, String>>();
     _casesDateGraph = List<charts.Series<TimeSeries, DateTime>>();
+    _confirmedDateGraph = List<charts.Series<TimeSeries, DateTime>>();
+    _recoveredDateGraph = List<charts.Series<TimeSeries, DateTime>>();
+    _deathDateGraph = List<charts.Series<TimeSeries, DateTime>>();
   }
 
   Future<String> fetchData() async {
@@ -76,6 +82,51 @@ class _GlobalState extends State<GlobalWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    Widget confirmedChart() {
+      List<TimeSeries> _confirmedList = [];
+
+      var jsonData = widget.globalGraphData;
+      Map res = jsonData['result'];
+
+      var dates = (res.keys).toList();
+
+      for (int i = 0; i < dates.length; i++) {
+        String date = dates[i];
+
+        var dateParts = date.split('-');
+        int yr = int.parse(dateParts[0]);
+        int mnth = int.parse(dateParts[1]);
+        int day = int.parse(dateParts[2]);
+
+        DateTime constrDate = DateTime(yr, mnth, day);
+
+        var dateResult = res[constrDate];
+
+        int confirmed = dateResult['confirmed'];
+
+        _confirmedList.add(
+          TimeSeries(
+            constrDate,
+            confirmed,
+            charts.ColorUtil.fromDartColor(Colors.blue),
+          ),
+        );
+      }
+
+      _confirmedDateGraph.add(
+        charts.Series(
+            id: 'Confirmed',
+            data: _confirmedList,
+            measureFn: (TimeSeries data, _) => data.count,
+            domainFn: (TimeSeries data, _) => data.date,
+            colorFn: (TimeSeries data, _) => data.colour),
+      );
+      return charts.TimeSeriesChart(
+        _confirmedDateGraph,
+      );
+    }
     Widget confirmedTile = FutureBuilder<String>(
       future: fetchData(),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -92,29 +143,33 @@ class _GlobalState extends State<GlobalWidget> {
           case ConnectionState.done:
             return new GestureDetector(
                 onTap: switchgraphVisibility,
-                child: Container(
-                  decoration: new BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: new BorderRadius.circular(10.00),
+                child: Column(children: [
+                  // SizedBox(height: 50),
+                  Container(
+                    decoration: new BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: new BorderRadius.circular(10.00),
+                    ),
+                    // color: Colors.blue,
+                    margin: EdgeInsets.all(5.0),
+                    height: 100.0,
+                    padding: EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          '$confirmed',
+                          style:
+                              TextStyle(fontSize: 20.00, color: Colors.white),
+                        ),
+                        Text(
+                          'Confirmed',
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
                   ),
-                  // color: Colors.blue,
-                  margin: EdgeInsets.all(5.0),
-                  height: 100.0,
-                  padding: EdgeInsets.all(10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(
-                        '$confirmed',
-                        style: TextStyle(fontSize: 20.00, color: Colors.white),
-                      ),
-                      Text(
-                        'Confirmed',
-                        style: TextStyle(color: Colors.white),
-                      )
-                    ],
-                  ),
-                ));
+                ]));
             break;
           default:
             return Text('Error');
@@ -213,6 +268,7 @@ class _GlobalState extends State<GlobalWidget> {
       },
     );
 
+
     Widget generateDateTimeChart() {
       List<TimeSeries> _confirmedList = [];
       List<TimeSeries> _recoveredList = [];
@@ -304,7 +360,10 @@ class _GlobalState extends State<GlobalWidget> {
             style: TextStyle(fontSize: 26),
             textAlign: TextAlign.center,
           ),
-          Container(height: 400, child: generateDateTimeChart())
+          Expanded(
+            // height: 400, 
+          child: Column(children:[generateDateTimeChart()])
+          )
         ],
       ),
     );
